@@ -1,0 +1,50 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    parallel:
+        maximumNumberOfProcesses: 5
+        minimumNumberOfJobsPerProcess: 2
+    
+    paths:
+        - app/
+        - config/
+        - database/
+        - routes/
+    
+    excludePaths:
+        - database/migrations/*_create_pulse_tables.php
+        - database/migrations/*_create_cache_table.php
+        - database/migrations/*_create_jobs_table.php
+    
+    # Level 9 is the highest level
+    level: 5
+    
+    # Laravel/Larastan specific
+    checkModelProperties: true
+    checkOctaneCompatibility: true
+    noUnnecessaryCollectionCall: true
+    
+    # Don't fail on unmatched ignored errors (useful when upgrading)
+    reportUnmatchedIgnoredErrors: false
+    
+    # Treat PHPDoc types as certain (stricter checking)
+    treatPhpDocTypesAsCertain: true
+    
+    ignoreErrors:
+        # Third-party package issues
+        - '#Class Spatie\\MediaLibraryPro\\Models\\TemporaryUpload not found#'
+        - '#Access to constant ATTR_SSL_CA on an unknown class Pdo\\Mysql#'
+        
+        # Laravel framework PHPDoc type mismatches (not our code)
+        - '#PHPDoc type .* is not covariant with PHPDoc type .* of overridden property#'
+        - '#Return type .* should be compatible with return type .* of method Illuminate#'
+        
+        # Match expressions in migrations (Laravel Pulse)
+        - '#Match expression does not handle remaining value: string#'
+        
+        # Method/property exists checks (intentional runtime checks)
+        - '#Call to function (method|property)_exists\(\) .* will always evaluate to true#'
+        
+        # Password expiration - password_changed_at is nullable datetime
+        - '#Cannot call method diffInDays\(\) on string#'

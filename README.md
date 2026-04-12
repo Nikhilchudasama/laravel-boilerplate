@@ -1,59 +1,241 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Boilerplate
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern, production-ready Laravel boilerplate with Vue 3, TypeScript, Inertia.js, and comprehensive features for building scalable web applications.
 
-## About Laravel
+![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel)
+![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)
+![Tests](https://img.shields.io/badge/Tests-148%20passing-success)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## ✨ Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Core Stack
+- **Laravel 12** - Latest PHP framework
+- **Vue 3** + **TypeScript** - Modern frontend
+- **Inertia.js** - SPA without API complexity
+- **Tailwind CSS** - Utility-first styling
+- **Vite** - Lightning-fast build tool
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Architecture
+- **Domain-Driven Design (DDD)** - Organized codebase
+- **Spatie Packages** - Permissions, Media Library, Data, Query Builder, Backup, Activity Log
+- **Transaction Support** - Database integrity with BaseQueries
 
-## Learning Laravel
+### Authentication & Authorization
+- Multi-panel architecture (Admin + User dashboards)
+- Role-based permissions (Spatie Permission)
+- **Multi-Factor Authentication (MFA)** - With SVG QR code generation
+- User impersonation
+- Password expiration
+- Smart redirection logic
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Admin Panel
+- Dynamic menu based on permissions
+- User management (CRUD, search, export)
+- **Bulk Actions** - Multi-select deactivation and deletion
+- **Excel Export** - Professional data export via Laravel Excel
+- Role management with permissions
+- Profile management with avatar uploads
+- Activity logging
+- DataTables with search/pagination
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Frontend Features
+- User registration & login
+- User dashboard
+- Profile management
+- Security settings
+- Toast notifications
+- Dark mode support
 
-## Laravel Sponsors
+### Developer Experience
+- **Static Analysis** - Larastan/PHPStan (Level 5+)
+- **Code Quality** - Rector, Pint (Strict styling)
+- **Zero-Warning Linting** - ESLint + Vue Plugin
+- **Type Safety** - 100% TypeScript + PHP type declarations
+- **Tests** - 148 comprehensive tests (Pest + Vitest)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Production Ready
+- Security headers middleware
+- Rate limiting (login, register, password reset)
+- Health check endpoint
+- Custom maintenance mode page
+- Branded email templates
+- Sitemap generator
+- Demo data seeders
 
-### Premium Partners
+## 📋 Requirements
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- PHP 8.3+
+- Composer
+- Node.js 18+ & NPM
+- MySQL 8.0+ / PostgreSQL 13+ / SQLite
+- Redis (optional, for caching/queues)
 
-## Contributing
+## 🚀 Installation
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. Clone the repository
+```bash
+git clone <repository-url>
+cd testnew
+```
 
-## Code of Conduct
+### 2. Install dependencies
+```bash
+composer install
+npm install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Environment setup
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+### 4. Configure database
+Edit `.env` and set your database credentials:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 5. Run migrations and seed
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-## License
+### 6. Build assets
+```bash
+npm run build
+# or for development
+npm run dev
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 7. Start the server
+```bash
+php artisan serve
+```
+
+Visit `http://localhost:8000`
+
+## 🧪 Testing
+
+We carry a rigorous testing suite covering both backend and frontend.
+
+**Run the umbrella verification (Unit + Types + Linting):**
+```bash
+composer run test
+```
+
+**Run specific test suites:**
+```bash
+composer run test:unit      # Pest Feature/Unit tests
+npm run test                # Vitest Component tests
+```
+
+## 🔧 Development
+
+### Code Quality Pipeline
+
+Our local pipeline ensures code quality before any push:
+
+**Lint & Format (Automatic):**
+```bash
+composer run lint           # PHP (Pint/Rector) + Frontend (ESLint)
+```
+
+**Static Analysis & Type Checking:**
+```bash
+composer run test:types     # PHP (Larastan) + Vue (vue-tsc)
+```
+
+**VS Code Integration:**
+The project includes a `.vscode/settings.json` that automatically runs ESLint's `--fix` command on save.
+
+### generate Demo Data
+```bash
+php artisan db:seed --class=DemoDataSeeder
+```
+
+Login with:
+- Email: `admin@demo.com`
+- Password: `password`
+
+### Generate Sitemap
+```bash
+php artisan sitemap:generate
+```
+
+## 📁 Project Structure
+
+```
+app/
+├── Domain/              # Domain-driven design structure
+│   ├── Access/         # Roles & Permissions
+│   ├── Activity/       # Activity logging
+│   ├── Auth/           # Authentication
+│   └── Users/          # User management
+├── Http/
+│   ├── Controllers/
+│   └── Middleware/
+└── Support/            # Shared utilities
+
+resources/
+├── js/
+│   ├── Components/     # Reusable Vue components
+│   ├── Layouts/        # Layout components
+│   ├── Services/       # Business logic & API (date, etc)
+│   └── Pages/          # Inertia pages
+│       ├── Admin/      # Admin panel pages
+│       └── Frontend/   # User-facing pages
+└── views/
+    ├── emails/         # Email templates
+    └── errors/         # Error pages
+
+tests/
+├── Feature/            # Laravel Feature tests
+├── Unit/               # Laravel Unit tests
+└── Vue/                # Vitest Component tests
+```
+
+## 🔐 Default Credentials
+
+After running seeders:
+
+**Admin:**
+- Email: `admin@example.com`
+- Password: `password`
+
+**Demo Admin (DemoDataSeeder):**
+- Email: `admin@demo.com`
+- Password: `password`
+
+## 📚 Documentation
+
+- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Development Guide](docs/DEVELOPMENT.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
+
+## 🛡️ Security
+
+- Security headers (CSP, HSTS, XSS protection)
+- Rate limiting on sensitive endpoints
+- CSRF protection
+- SQL injection prevention
+- XSS protection (v-html usage is audited and suppressed only where safe)
+
+## 📝 License
+
+This project is open-sourced software licensed under the [MIT license](LICENSE).
+
+## 🤝 Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## 📞 Support
+
+For issues and questions, please use the [issue tracker](https://github.com/your-repo/issues).

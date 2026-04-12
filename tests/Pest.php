@@ -1,5 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
+use App\Domain\Users\Models\User;
+use Database\Seeders\RoleSeeder;
+use Spatie\Permission\PermissionRegistrar;
+use Tests\FeatureTestCase;
+use Tests\UnitTestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -7,13 +15,15 @@
 |
 | The closure you provide to your test functions is always bound to a specific PHPUnit test
 | case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind a different classes or traits.
+| need to change it using the "uses()" function to bind a different classes or traits.
 |
 */
 
-pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+uses(UnitTestCase::class)->beforeEach(fn () => $this->withoutVite())->in('Unit');
+uses(FeatureTestCase::class)->beforeEach(function (): void {
+    $this->withoutVite();
+    app()[PermissionRegistrar::class]->forgetCachedPermissions();
+})->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
@@ -26,9 +36,10 @@ pest()->extend(Tests\TestCase::class)
 |
 */
 
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
+expect()->extend('toBeOne', fn () => $this->toBe(1));
+
+expect()->extend('toBeUuid', fn () => $this->toBeString()
+    ->and(strlen($this->value))->toBeGreaterThan(30));
 
 /*
 |--------------------------------------------------------------------------
@@ -41,7 +52,35 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function userSeed(array $records = []): User
 {
-    // ..
+    return User::factory()->create($records);
+}
+
+function adminSeed(array $records = []): User
+{
+    return User::factory()->admin()->create($records);
+}
+
+function loginUser(?User $user = null): mixed
+{
+    $loginUser = $user ?? userSeed();
+
+    return test()->actingAs($loginUser);
+}
+
+function loginAdmin(?User $admin = null): mixed
+{
+    $loginAdmin = $admin ?? adminSeed();
+
+    if (! $loginAdmin->hasRole('admin')) {
+        $loginAdmin->assignRole('admin');
+    }
+
+    return test()->actingAs($loginAdmin);
+}
+
+function seedRoles(): void
+{
+    test()->seed(RoleSeeder::class);
 }
