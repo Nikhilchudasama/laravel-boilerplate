@@ -103,7 +103,8 @@ jobs:
   #   SSH_HOST         – production server IP or hostname
   #   SSH_USER         – SSH username on the server
   #   DEPLOY_PATH      – absolute path to project on server (e.g. /var/www/html)
-  #   PRODUCTION_URL   – public URL (e.g. https://yourdomain.com)
+  #   PRODUCTION_URL   – public URL (e.g. https://yourdomain.com) ← store as a VARIABLE, not a Secret
+  #                       (Settings → Secrets and variables → Actions → Variables tab)
   # ────────────────────────────────────────────────────────────────────────────
   deploy:
     name: "🚀 Deploy → Production"
@@ -111,7 +112,7 @@ jobs:
     needs: [verify]           # ← aborted if verify fails
     environment:
       name: production
-      url: ${{ secrets.PRODUCTION_URL }}
+      url: ${{ vars.PRODUCTION_URL }}   # Store in Variables (not Secrets) — see comment below
 
     steps:
       - name: Checkout
