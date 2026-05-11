@@ -119,7 +119,9 @@ jobs:
         run: cp .env.example .env
 
       - name: Generate application key
-        run: php artisan key:generate
+        run: |
+          php artisan key:generate --force
+          echo "APP_KEY=$(grep '^APP_KEY=' .env | cut -d '=' -f2-)" >> $GITHUB_ENV
 
       - name: Create SQLite database
         run: |
@@ -174,6 +176,14 @@ jobs:
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate application key
+        run: |
+          php artisan key:generate --force
+          echo "APP_KEY=$(grep '^APP_KEY=' .env | cut -d '=' -f2-)" >> $GITHUB_ENV
 
       - name: Run Type Coverage
         run: php -d memory_limit=2G ./vendor/bin/pest --type-coverage --min=70

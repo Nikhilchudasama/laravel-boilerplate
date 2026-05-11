@@ -115,13 +115,13 @@ jobs:
             --jq '.[0].number' 2>/dev/null || echo "")
 
           if [[ -z "$EXISTING" ]]; then
+            BODY_TEXT="${{ env.DESCRIPTION }}"
+            BODY_TEXT+=$'\n\n> Triggered by PR #${{ env.PR_NUMBER }} — please review and merge this fixer PR into your branch before merging your original PR.'
             gh pr create \
               --head "${{ env.FIXER_BRANCH }}" \
               --base "${{ env.SOURCE_BRANCH }}" \
               --title "${{ env.TITLE }}" \
-              --body "${{ env.DESCRIPTION }}
-
-> Triggered by PR #${{ env.PR_NUMBER }} — please review and merge this fixer PR into your branch before merging your original PR."
+              --body "$BODY_TEXT"
             echo "✅ Fixer PR created."
           else
             echo "ℹ️  Fixer PR #$EXISTING already exists — updated with force-push."
