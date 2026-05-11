@@ -1,0 +1,312 @@
+name: "CI — Run All Tests"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Triggers
+# • Every push to main / dev / staging
+# • Every pull-request that targets main / dev / staging
+# Merge is blocked by branch-protection rules until this workflow passes.
+# ──────────────────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PHP_VERSION: "8.2"
+  NODE_VERSION: "20"
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 1 — PHP: Lint (Pint + Rector dry-run)
+  # ────────────────────────────────────────────────────────────────────────────
+  php-lint:
+    name: "PHP Lint (Pint + Rector)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+
+      - name: Run Laravel Pint (coding style)
+        run: ./vendor/bin/pint --parallel --test
+
+      - name: Run Rector (dead-code & upgrades dry-run)
+        run: ./vendor/bin/rector --dry-run --no-progress-bar
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 2 — PHP: Static Analysis (PHPStan / Larastan)
+  # ────────────────────────────────────────────────────────────────────────────
+  php-types:
+    name: "PHP Static Analysis (PHPStan)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+
+      - name: Run PHPStan
+        run: ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 3 — PHP: Unit & Feature Tests (Pest)
+  # ────────────────────────────────────────────────────────────────────────────
+  php-tests:
+    name: "PHP Tests (Pest)"
+    runs-on: ubuntu-latest
+    needs: [php-lint]      # only run if lint passes
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: clover
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate application key
+        run: php artisan key:generate
+
+      - name: Create SQLite database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: Run database migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+
+      - name: Run Pest (Unit + Feature)
+        run: ./vendor/bin/pest --parallel --coverage --coverage-clover=coverage.xml
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: php-coverage
+          path: coverage.xml
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 4 — PHP: Type Coverage (Pest)
+  # ────────────────────────────────────────────────────────────────────────────
+  php-type-coverage:
+    name: "PHP Type Coverage (min 70%)"
+    runs-on: ubuntu-latest
+    needs: [php-lint]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+
+      - name: Run Type Coverage
+        run: php -d memory_limit=2G ./vendor/bin/pest --type-coverage --min=70
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 5 — JS/TS: ESLint
+  # ────────────────────────────────────────────────────────────────────────────
+  js-lint:
+    name: "JS/TS Lint (ESLint)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run test:lint
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 6 — JS/TS: TypeScript type-check (vue-tsc)
+  # ────────────────────────────────────────────────────────────────────────────
+  js-types:
+    name: "TS Type Check (vue-tsc)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run TypeScript type check
+        run: npm run test:types
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 7 — JS/TS: Vitest unit tests
+  # ────────────────────────────────────────────────────────────────────────────
+  js-tests:
+    name: "JS/TS Tests (Vitest)"
+    runs-on: ubuntu-latest
+    needs: [js-lint]       # only run if lint passes
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Run Vitest
+        run: npm run test -- --reporter=verbose --coverage
+
+      - name: Upload JS coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: js-coverage
+          path: coverage/
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 8 — Production Build (must succeed before deploy gate)
+  # ────────────────────────────────────────────────────────────────────────────
+  build:
+    name: "Production Build (Vite)"
+    runs-on: ubuntu-latest
+    needs: [js-lint, js-types]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-assets
+          path: public/build/
+          retention-days: 1
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 9 — CI Gate (all jobs must pass — referenced by branch protection)
+  # ────────────────────────────────────────────────────────────────────────────
+  ci-gate:
+    name: "✅ CI Gate (all checks passed)"
+    runs-on: ubuntu-latest
+    needs:
+      - php-lint
+      - php-types
+      - php-tests
+      - php-type-coverage
+      - js-lint
+      - js-types
+      - js-tests
+      - build
+    if: always()
+    steps:
+      - name: Evaluate all jobs
+        run: |
+          results=("${{ needs.php-lint.result }}" "${{ needs.php-types.result }}" "${{ needs.php-tests.result }}" "${{ needs.php-type-coverage.result }}" "${{ needs.js-lint.result }}" "${{ needs.js-types.result }}" "${{ needs.js-tests.result }}" "${{ needs.build.result }}")
+          for r in "${results[@]}"; do
+            if [[ "$r" != "success" ]]; then
+              echo "❌ One or more CI jobs failed. Deploy blocked."
+              exit 1
+            fi
+          done
+          echo "✅ All CI checks passed. Merge/deploy allowed."

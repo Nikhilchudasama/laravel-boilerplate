@@ -1,0 +1,137 @@
+name: "Security Scan"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Runs on every PR and on a weekly schedule.
+# Checks for known vulnerabilities in Composer and npm dependencies.
+# ──────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: "0 3 * * 1"   # Every Monday at 03:00 UTC
+  workflow_dispatch:        # Allow manual trigger from GitHub UI
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 1 — PHP dependency audit (composer audit)
+  # ────────────────────────────────────────────────────────────────────────────
+  php-audit:
+    name: "PHP Dependency Audit"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+
+      - name: Run composer audit
+        run: composer audit --format=json --no-interaction | tee php-audit.json || true
+
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        run: |
+          HIGH=$(cat php-audit.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          advisories = data.get('advisories', {})
+          count = 0
+          for pkg, items in advisories.items():
+              for item in items:
+                  severity = item.get('severity', '').lower()
+                  if severity in ('high', 'critical'):
+                      print(f'❌ {pkg}: [{severity.upper()}] {item.get(\"title\", \"\")}')
+                      count += 1
+          sys.exit(count)
+          " 2>&1) || (echo "$HIGH" && exit 1)
+          echo "✅ No HIGH/CRITICAL PHP vulnerabilities found."
+
+      - name: Upload PHP audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: php-audit-report
+          path: php-audit.json
+          retention-days: 14
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 2 — Node dependency audit (npm audit)
+  # ────────────────────────────────────────────────────────────────────────────
+  node-audit:
+    name: "Node Dependency Audit"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit (high + critical only)
+        run: npm audit --audit-level=high --json | tee node-audit.json || true
+
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        run: |
+          VULNS=$(cat node-audit.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          meta = data.get('metadata', {}).get('vulnerabilities', {})
+          high     = meta.get('high', 0)
+          critical = meta.get('critical', 0)
+          total    = high + critical
+          if total > 0:
+              print(f'❌ {critical} critical, {high} high vulnerabilities found in npm packages.')
+              sys.exit(1)
+          else:
+              print('✅ No HIGH/CRITICAL npm vulnerabilities found.')
+          ")
+          echo "$VULNS"
+
+      - name: Upload Node audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: node-audit-report
+          path: node-audit.json
+          retention-days: 14
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # JOB 3 — GitHub Advanced Security: CodeQL (optional, requires GitHub plan)
+  #          Comment out this job if you are on a free private repo plan.
+  # ────────────────────────────────────────────────────────────────────────────
+  codeql:
+    name: "CodeQL Analysis (PHP + JS)"
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript   # covers Vue/TS — PHP CodeQL is community-supported
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript"

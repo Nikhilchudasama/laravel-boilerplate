@@ -1,0 +1,131 @@
+name: "Code Quality — Auto Fix & PR"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Triggers when a PR review is submitted AND the review is "approved".
+# The bot automatically applies Pint, Rector, and ESLint fixes, then opens
+# a new fixer PR against the source branch so the author can review & merge.
+# ──────────────────────────────────────────────────────────────────────────────
+on:
+  pull_request_review:
+    types: [submitted]
+
+env:
+  PHP_VERSION: "8.2"
+  NODE_VERSION: "20"
+  SOURCE_BRANCH:  "${{ github.event.pull_request.head.ref }}"
+  FIXER_BRANCH:   "auto-fix/${{ github.event.pull_request.head.ref }}"
+  PR_NUMBER:      "${{ github.event.number }}"
+  TITLE:          "🤖 Auto-fix: Pint + Rector + ESLint — PR #${{ github.event.number }}"
+  DESCRIPTION:    "Automated code-quality fixes applied by GitHub Actions (Pint, Rector, ESLint)."
+
+jobs:
+  auto-fix:
+    name: "Apply Auto-fixes"
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout the PR head commit ─────────────────────────────────────────
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Fetch branches
+        run: |
+          git fetch origin main
+          git fetch origin ${{ env.SOURCE_BRANCH }}
+
+      # ── Configure git bot identity ──────────────────────────────────────────
+      - name: Configure Git bot identity
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B "${{ env.FIXER_BRANCH }}"
+
+      # ── PHP setup ──────────────────────────────────────────────────────────
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-interaction --no-scripts --no-progress
+
+      # ── Node setup ─────────────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      # ── Detect changed files (only fix what changed in this PR) ────────────
+      - name: Detect changed files
+        run: |
+          git diff --diff-filter=MA --name-only \
+            origin/main...origin/${{ env.SOURCE_BRANCH }} \
+            > changed-files.txt
+          echo "Changed files:"
+          cat changed-files.txt
+
+      # ── Apply auto-fixers ──────────────────────────────────────────────────
+      - name: Run Laravel Pint (auto-fix)
+        run: ./vendor/bin/pint --parallel
+
+      - name: Run Rector (auto-fix)
+        run: ./vendor/bin/rector process --clear-cache --no-progress-bar
+
+      - name: Run ESLint (auto-fix)
+        run: npm run lint
+
+      # ── Commit & push fixer branch, then open PR ───────────────────────────
+      - name: Create fixer PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "✅ Nothing to fix — code is already clean."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "${{ env.TITLE }}"
+          git push origin "${{ env.FIXER_BRANCH }}" --force
+
+          # Check if a fixer PR is already open for this branch
+          EXISTING=$(gh pr list \
+            --head "${{ env.FIXER_BRANCH }}" \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || echo "")
+
+          if [[ -z "$EXISTING" ]]; then
+            gh pr create \
+              --head "${{ env.FIXER_BRANCH }}" \
+              --base "${{ env.SOURCE_BRANCH }}" \
+              --title "${{ env.TITLE }}" \
+              --body "${{ env.DESCRIPTION }}
+
+> Triggered by PR #${{ env.PR_NUMBER }} — please review and merge this fixer PR into your branch before merging your original PR."
+            echo "✅ Fixer PR created."
+          else
+            echo "ℹ️  Fixer PR #$EXISTING already exists — updated with force-push."
+          fi
+
+          # Signal failure so the original PR is blocked until fixes are merged
+          exit 1
