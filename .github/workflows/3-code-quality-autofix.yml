@@ -10,7 +10,7 @@ on:
     types: [submitted]
 
 env:
-  PHP_VERSION: "8.2"
+  PHP_VERSION: "8.3"
   NODE_VERSION: "20"
   SOURCE_BRANCH:  "${{ github.event.pull_request.head.ref }}"
   FIXER_BRANCH:   "auto-fix/${{ github.event.pull_request.head.ref }}"
