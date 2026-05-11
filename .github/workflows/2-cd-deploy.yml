@@ -67,6 +67,14 @@ jobs:
       - name: PHP Static Analysis (PHPStan)
         run: ./vendor/bin/phpstan analyse --memory-limit=2G --no-progress
 
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate application key
+        run: |
+          php artisan key:generate --force
+          echo "APP_KEY=$(grep '^APP_KEY=' .env | cut -d '=' -f2-)" >> $GITHUB_ENV
+
       - name: PHP Tests (Pest)
         run: ./vendor/bin/pest --parallel
         env:
@@ -193,7 +201,7 @@ jobs:
           echo "✅ Production deploy succeeded!"
           echo "   Commit : ${{ github.sha }}"
           echo "   By     : ${{ github.actor }}"
-          echo "   URL    : ${{ secrets.PRODUCTION_URL }}"
+          echo "   URL    : ${{ vars.PRODUCTION_URL }}"
 
       - name: Notify on failure
         if: failure()

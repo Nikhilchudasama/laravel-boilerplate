@@ -84,7 +84,7 @@ jobs:
 
       - name: Fail on HIGH/CRITICAL vulnerabilities
         run: |
-          VULNS=$(cat node-audit.json | python3 -c "
+          cat node-audit.json | python3 -c "
           import json, sys
           data = json.load(sys.stdin)
           meta = data.get('metadata', {}).get('vulnerabilities', {})
@@ -96,8 +96,7 @@ jobs:
               sys.exit(1)
           else:
               print('✅ No HIGH/CRITICAL npm vulnerabilities found.')
-          ")
-          echo "$VULNS"
+          "
 
       - name: Upload Node audit report
         uses: actions/upload-artifact@v4
