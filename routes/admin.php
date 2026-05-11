@@ -13,7 +13,7 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::post('logout', [LoginController::class, 'destroy'])
-    ->name('logout')
+    ->name('admin.logout')
     ->middleware('auth');
 
 use App\Domain\Access\Http\Controllers\RoleController;

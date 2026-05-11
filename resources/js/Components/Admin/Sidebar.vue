@@ -25,7 +25,7 @@ const handleItemClick = () => {
 };
 
 const logout = () => {
-  router.post(route('logout'));
+  router.post(route('admin.logout'));
 };
 
 const isMenuVisible = (menu: { external?: boolean, route_name?: string, role?: string, permission?: string }) => {
