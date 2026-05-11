@@ -18,6 +18,7 @@ concurrency:
 env:
   PHP_VERSION: "8.3"
   NODE_VERSION: "20"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ────────────────────────────────────────────────────────────────────────────
@@ -162,6 +163,7 @@ jobs:
             git pull origin main
 
             echo "⏳ Installing Composer dependencies (production, no-dev)..."
+            rm -rf vendor
             composer install \
               --no-dev \
               --optimize-autoloader \

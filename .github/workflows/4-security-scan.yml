@@ -11,6 +11,9 @@ on:
     - cron: "0 3 * * 1"   # Every Monday at 03:00 UTC
   workflow_dispatch:        # Allow manual trigger from GitHub UI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   # ────────────────────────────────────────────────────────────────────────────
   # JOB 1 — PHP dependency audit (composer audit)

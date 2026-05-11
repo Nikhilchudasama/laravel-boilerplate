@@ -12,6 +12,7 @@ on:
 env:
   PHP_VERSION: "8.3"
   NODE_VERSION: "20"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   SOURCE_BRANCH:  "${{ github.event.pull_request.head.ref }}"
   FIXER_BRANCH:   "auto-fix/${{ github.event.pull_request.head.ref }}"
   PR_NUMBER:      "${{ github.event.number }}"
