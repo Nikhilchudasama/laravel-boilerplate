@@ -107,7 +107,6 @@ class UserController extends Controller
 
     public function leaveImpersonation()
     {
-        /** @var User $authUser */
         Auth::user();
 
         if (app('impersonate')->isImpersonating()) {
