@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
 use Illuminate\Console\Attributes\Description;
@@ -47,7 +49,7 @@ class DemoResetCommand extends Command
         // 1. Clear Public Storage (Standard Spatie Path)
         $disk = config('media-library.disk_name', 'public');
         $prefix = config('media-library.prefix', '');
-        
+
         if ($disk === 'public') {
             $path = storage_path('app/public/' . $prefix);
             if (File::exists($path)) {
@@ -55,7 +57,7 @@ class DemoResetCommand extends Command
                 foreach ($directories as $directory) {
                     File::deleteDirectory($directory);
                 }
-                
+
                 $files = File::files($path);
                 foreach ($files as $file) {
                     if ($file->getFilename() !== '.gitignore') {
@@ -66,7 +68,7 @@ class DemoResetCommand extends Command
         }
 
         // 2. Clear Temporary Directory
-        $tempPath = config('media-library.temporary_directory_path') ?? storage_path('media-library/temp');
+        $tempPath = config('media-library.temporary_directory_path', storage_path('media-library/temp'));
         if (File::exists($tempPath)) {
             File::cleanDirectory($tempPath);
         }

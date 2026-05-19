@@ -19,7 +19,7 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = Auth::user();
 
         if ($user && $user->hasAdminAccess()) {

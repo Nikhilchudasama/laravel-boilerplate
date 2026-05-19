@@ -23,7 +23,6 @@ const props = defineProps<{
 </script>
 
 <template>
-
   <Head title="User Dashboard" />
 
   <div class="min-h-screen">
@@ -42,7 +41,8 @@ const props = defineProps<{
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <!-- Profile Card -->
         <div
-          class="bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+          class="bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6"
+        >
           <div class="flex items-center space-x-4 mb-4">
             <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
               <UserIcon class="h-6 w-6 text-blue-600" />
@@ -54,8 +54,10 @@ const props = defineProps<{
           <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
             Keep your personal information and contact details up to date.
           </p>
-          <Link href="/profile"
-            class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link
+            href="/profile"
+            class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+          >
             Edit Profile
             <ArrowRightOnRectangleIcon class="h-4 w-4 ml-1" />
           </Link>
@@ -63,7 +65,8 @@ const props = defineProps<{
 
         <!-- Security Card -->
         <div
-          class="bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6">
+          class="bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-md transition-shadow rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6"
+        >
           <div class="flex items-center space-x-4 mb-4">
             <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl">
               <ShieldCheckIcon class="h-6 w-6 text-green-600" />
@@ -75,16 +78,20 @@ const props = defineProps<{
           <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
             Manage your password, 2FA settings, and active login sessions.
           </p>
-          <Link href="/security"
-            class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link
+            href="/security"
+            class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+          >
             Review Settings
             <ArrowRightOnRectangleIcon class="h-4 w-4 ml-1" />
           </Link>
         </div>
 
         <!-- Admin Bypass Notification (Demo) -->
-        <div v-if="props.auth?.user?.type === 'admin'"
-          class="bg-indigo-50 dark:bg-indigo-900/20 overflow-hidden shadow-sm rounded-2xl border border-indigo-200 dark:border-indigo-800/50 p-6">
+        <div
+          v-if="props.auth?.user?.type === 'admin'"
+          class="bg-indigo-50 dark:bg-indigo-900/20 overflow-hidden shadow-sm rounded-2xl border border-indigo-200 dark:border-indigo-800/50 p-6"
+        >
           <div class="flex items-center space-x-4 mb-4">
             <div class="p-3 bg-indigo-600 rounded-xl">
               <Cog6ToothIcon class="h-6 w-6 text-white" />
@@ -96,8 +103,10 @@ const props = defineProps<{
           <p class="text-sm text-indigo-700 dark:text-indigo-300 mb-6">
             You have administrative privileges. You can switch to the management panel.
           </p>
-          <Link href="/admin/dashboard"
-            class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors uppercase tracking-wider">
+          <Link
+            href="/admin/dashboard"
+            class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors uppercase tracking-wider"
+          >
             Go to Admin Panel
           </Link>
         </div>
