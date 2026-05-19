@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PasswordExpiration;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,12 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'password.expired' => \App\Http\Middleware\PasswordExpiration::class,
+            'password.expired' => PasswordExpiration::class,
         ]);
 
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \App\Http\Middleware\SecurityHeaders::class,
+            HandleInertiaRequests::class,
+            SecurityHeaders::class,
         ]);
 
         $middleware->redirectTo(
@@ -38,6 +41,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 return route('login');
             }
         );
+    })
+    ->withSchedule(function ($schedule) {
+        $schedule->command('app:demo-reset')->hourly();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

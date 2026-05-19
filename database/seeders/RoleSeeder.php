@@ -37,5 +37,8 @@ class RoleSeeder extends Seeder
         // Create Editor Role
         $editor = Role::create(['name' => 'editor']);
         $editor->givePermissionTo(['view_users', 'create_users']);
+
+        // Create User Role
+        Role::create(['name' => 'user']);
     }
 }

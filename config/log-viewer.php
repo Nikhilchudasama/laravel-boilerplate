@@ -66,9 +66,8 @@ return [
     |
     */
 
-    'back_to_system_url' => config('app.url'),
-
-    'back_to_system_label' => null, // Displayed by default: "Back to {{ app.name }}"
+    'back_to_system_url' => env('LOG_VIEWER_BACK_URL', config('app.url') . '/admin'),
+    'back_to_system_label' => env('LOG_VIEWER_BACK_LABEL', 'Back to Admin Dashboard'),
 
     /*
     |--------------------------------------------------------------------------
@@ -171,16 +170,16 @@ return [
 
         // You can include paths to other log types as well, such as apache, nginx, and more.
         // This key => value pair can be used to rename and group multiple paths into one folder in the UI.
-        '/var/log/httpd/*' => 'Apache',
-        '/var/log/nginx/*' => 'Nginx',
+        // '/var/log/httpd/*' => 'Apache',
+        // '/var/log/nginx/*' => 'Nginx',
 
         // MacOS Apple Silicon logs
-        '/opt/homebrew/var/log/nginx/*',
-        '/opt/homebrew/var/log/httpd/*',
-        '/opt/homebrew/var/log/php-fpm.log',
-        '/opt/homebrew/var/log/postgres*log',
-        '/opt/homebrew/var/log/redis*log',
-        '/opt/homebrew/var/log/supervisor*log',
+        // '/opt/homebrew/var/log/nginx/*',
+        // '/opt/homebrew/var/log/httpd/*',
+        // '/opt/homebrew/var/log/php-fpm.log',
+        // '/opt/homebrew/var/log/postgres*log',
+        // '/opt/homebrew/var/log/redis*log',
+        // '/opt/homebrew/var/log/supervisor*log',
 
         // '/absolute/paths/supported',
     ],

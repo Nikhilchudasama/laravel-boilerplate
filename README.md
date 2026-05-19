@@ -2,15 +2,15 @@
 
 A modern, production-ready Laravel boilerplate with Vue 3, TypeScript, Inertia.js, and comprehensive features for building scalable web applications.
 
-![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?logo=laravel)
+![Laravel](https://img.shields.io/badge/Laravel-13.x-FF2D20?logo=laravel)
 ![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?logo=typescript)
 ![Tests](https://img.shields.io/badge/Tests-148%20passing-success)
 
 ## ✨ Features
 
 ### Core Stack
-- **Laravel 12** - Latest PHP framework
+- **Laravel 13** - Latest PHP framework
 - **Vue 3** + **TypeScript** - Modern frontend
 - **Inertia.js** - SPA without API complexity
 - **Tailwind CSS** - Utility-first styling
@@ -156,14 +156,21 @@ composer run test:types     # PHP (Larastan) + Vue (vue-tsc)
 **VS Code Integration:**
 The project includes a `.vscode/settings.json` that automatically runs ESLint's `--fix` command on save.
 
-### generate Demo Data
+### 🔄 Demo Environment Reset
+The project includes a command to reset the database and media files, which is scheduled to run **hourly** in `bootstrap/app.php`:
+```bash
+php artisan app:demo-reset
+```
+
+### 🔑 Demo Credentials
+When `APP_DEMO_MODE=true` is set in `.env`, the login page will pre-fill with:
+- **Admin:** `admin@demo.com` / `password`
+- **User:** `user@demo.com` / `password`
+
+### 🏗️ Generate Demo Data (Manual)
 ```bash
 php artisan db:seed --class=DemoDataSeeder
 ```
-
-Login with:
-- Email: `admin@demo.com`
-- Password: `password`
 
 ### Generate Sitemap
 ```bash

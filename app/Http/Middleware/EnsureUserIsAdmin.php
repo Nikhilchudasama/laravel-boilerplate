@@ -19,15 +19,10 @@ class EnsureUserIsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! Auth::check()) {
-            // Redirect unauthenticated users to frontend login
-            return to_route('login');
-        }
-
         /** @var User $user */
         $user = Auth::user();
 
-        if ($user->hasAdminAccess()) {
+        if ($user && $user->hasAdminAccess()) {
             return $next($request);
         }
 

@@ -39,10 +39,10 @@ return RectorConfig::configure()
         SetList::DEAD_CODE,
 
         // PHP version
-        LevelSetList::UP_TO_PHP_82,
+        LevelSetList::UP_TO_PHP_83,
 
         // Laravel sets
-        LaravelSetList::LARAVEL_120,
+        LaravelSetList::LARAVEL_130,
         LaravelSetList::LARAVEL_ARRAY_STR_FUNCTION_TO_STATIC_CALL,
         LaravelSetList::ARRAY_STR_FUNCTIONS_TO_STATIC_CALL,
         LaravelSetList::LARAVEL_LEGACY_FACTORIES_TO_CLASSES,

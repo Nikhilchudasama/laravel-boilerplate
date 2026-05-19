@@ -16,9 +16,16 @@ defineOptions({ layout: FrontendLayout });
 
 const showPassword = ref(false);
 
+const props = defineProps<{
+  demo?: {
+    email: string;
+    password: string;
+  }
+}>();
+
 const form = useForm<LoginFormData>({
-  email: '',
-  password: '',
+  email: props.demo?.email ?? '',
+  password: props.demo?.password ?? '',
   remember: false,
 });
 

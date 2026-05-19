@@ -109,8 +109,8 @@ class UserController extends Controller
     {
         Auth::user();
 
-        if (app('impersonate')->isImpersonating()) {
-            app('impersonate')->leave();
+        if (resolve('impersonate')->isImpersonating()) {
+            resolve('impersonate')->leave();
 
             return to_route('admin.users.index')->with('success', 'Returned to admin account');
         }

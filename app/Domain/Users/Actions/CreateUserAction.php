@@ -18,7 +18,7 @@ class CreateUserAction extends BaseAction
                 'name' => $data->name,
                 'email' => $data->email,
                 'password' => Hash::make($data->password),
-                'type' => $data->type ?? User::TYPE_USER,
+                'type' => $data->type,
                 'active' => $data->active,
             ]);
 

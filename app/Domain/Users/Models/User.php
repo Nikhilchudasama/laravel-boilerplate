@@ -7,6 +7,9 @@ namespace App\Domain\Users\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Support\Traits\HasGlobalSearch;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Appends;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,6 +22,28 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
 
+#[Appends([
+    'avatar_url',
+])]
+#[Fillable([
+    'type',
+    'name',
+    'email',
+    'password',
+    'google2fa_secret',
+    'active',
+    'timezone',
+    'last_login_at',
+    'last_login_ip',
+    'to_be_logged_out',
+    'provider',
+    'provider_id',
+])]
+#[Hidden([
+    'password',
+    'remember_token',
+    'google2fa_secret',
+])]
 class User extends Authenticatable implements HasMedia
 {
     use HasFactory;
@@ -61,46 +86,6 @@ class User extends Authenticatable implements HasMedia
     {
         return UserFactory::new();
     }
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'type',
-        'name',
-        'email',
-        'password',
-        'google2fa_secret',
-        'active',
-        'timezone',
-        'last_login_at',
-        'last_login_ip',
-        'to_be_logged_out',
-        'provider',
-        'provider_id',
-    ];
-
-    /**
-     * The attributes that should be appended to the model's array form.
-     *
-     * @var array
-     */
-    protected $appends = [
-        'avatar_url',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'google2fa_secret',
-    ];
 
     /**
      * Get the attributes that should be cast.

@@ -42,6 +42,7 @@ return [
     */
 
     'debug' => (bool) env('APP_DEBUG', false),
+    'demo_mode' => (bool) env('APP_DEMO_MODE', false),
 
     /*
     |--------------------------------------------------------------------------

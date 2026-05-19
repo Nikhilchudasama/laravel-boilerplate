@@ -7,6 +7,8 @@ use App\Domain\Auth\Http\Controllers\LoginController;
 use App\Domain\Users\Http\Controllers\AdminProfileController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', fn () => redirect()->route('admin.dashboard'));
+
 Route::middleware('guest')->group(function (): void {
     Route::get('login', [LoginController::class, 'create'])->name('admin.login');
     Route::post('login', [LoginController::class, 'store'])->name('admin.login.store');

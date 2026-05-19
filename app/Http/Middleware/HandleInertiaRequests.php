@@ -50,7 +50,7 @@ class HandleInertiaRequests extends Middleware
                     'roles' => $request->user()->getRoleNames(),
                     'permissions' => $request->user()->getAllPermissions()->pluck('name'),
                 ] : null,
-                'is_impersonating' => app('impersonate')->isImpersonating(),
+                'is_impersonating' => resolve('impersonate')->isImpersonating(),
             ],
             'current_route_name' => Route::currentRouteName(),
             'flash' => [

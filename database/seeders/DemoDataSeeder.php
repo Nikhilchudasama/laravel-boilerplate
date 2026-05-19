@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Domain\Access\Models\Role;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class DemoDataSeeder extends Seeder
 {
@@ -32,7 +32,21 @@ class DemoDataSeeder extends Seeder
             $this->command->info('ℹ Demo admin already exists: admin@demo.com / password');
         }
 
-        // Create demo regular users
+        // Create demo regular user
+        $user = User::where('email', 'user@demo.com')->first();
+        if (! $user) {
+            $user = User::factory()->create([
+                'name' => 'Demo User',
+                'email' => 'user@demo.com',
+                'password' => bcrypt('password'),
+            ]);
+            $user->assignRole('user');
+            $this->command->info('✓ Created demo user: user@demo.com / password');
+        } else {
+            $this->command->info('ℹ Demo user already exists: user@demo.com / password');
+        }
+
+        // Create demo regular users (random)
         $users = User::factory()->count(10)->create();
         $this->command->info('✓ Created 10 demo users');
 

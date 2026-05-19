@@ -16,7 +16,12 @@ class UserLoginController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Frontend/Auth/Login');
+        return Inertia::render('Frontend/Auth/Login', [
+            'demo' => config('app.demo_mode') ? [
+                'email' => 'user@demo.com',
+                'password' => 'password',
+            ] : null,
+        ]);
     }
 
     public function store(LoginData $data): RedirectResponse

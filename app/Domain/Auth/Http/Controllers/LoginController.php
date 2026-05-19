@@ -20,6 +20,10 @@ class LoginController extends Controller
         return Inertia::render('Admin/Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
+            'demo' => config('app.demo_mode') ? [
+                'email' => 'admin@demo.com',
+                'password' => 'password',
+            ] : null,
         ]);
     }
 
