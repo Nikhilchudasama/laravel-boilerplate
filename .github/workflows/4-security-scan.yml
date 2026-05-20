@@ -43,14 +43,18 @@ jobs:
           cat php-audit.json | python3 -c "
           import json, sys
           data = json.load(sys.stdin)
-          advisories = data.get('advisories', {})
+          advisories = data.get('advisories', [])
           count = 0
-          for pkg, items in advisories.items():
-              for item in items:
-                  severity = item.get('severity', '').lower()
-                  if severity in ('high', 'critical'):
-                      print(f'❌ {pkg}: [{severity.upper()}] {item.get(\"title\", \"\")}')
-                      count += 1
+
+          # Handle both dict and list formats
+          if isinstance(advisories, dict):
+              advisories = advisories.values()
+
+          for item in advisories:
+              severity = item.get('severity', '').lower()
+              if severity in ('high', 'critical'):
+                  print(f'❌ {item.get(\"package\", \"unknown\")}: [{severity.upper()}] {item.get(\"title\", \"\")}')
+                  count += 1
           if count > 0:
               sys.exit(1)
           "
