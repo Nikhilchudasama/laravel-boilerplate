@@ -48,13 +48,14 @@ jobs:
 
           # Handle both dict and list formats
           if isinstance(advisories, dict):
-              advisories = advisories.values()
+              advisories = list(advisories.values())
 
           for item in advisories:
-              severity = item.get('severity', '').lower()
-              if severity in ('high', 'critical'):
-                  print(f'❌ {item.get(\"package\", \"unknown\")}: [{severity.upper()}] {item.get(\"title\", \"\")}')
-                  count += 1
+              if isinstance(item, dict):
+                  severity = item.get('severity', '').lower()
+                  if severity in ('high', 'critical'):
+                      print(f'❌ {item.get(\"package\", \"unknown\")}: [{severity.upper()}] {item.get(\"title\", \"\")}')
+                      count += 1
           if count > 0:
               sys.exit(1)
           "
