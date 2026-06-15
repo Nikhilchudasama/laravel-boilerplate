@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatDate, formatRelativeTime, formatCurrency, formatNumber, truncate } from '@/Utils/formatters';
+import { formatDate, formatCurrency, formatNumber, truncate } from '@/Utils/formatters';
 
 describe('formatters', () => {
     describe('formatDate', () => {

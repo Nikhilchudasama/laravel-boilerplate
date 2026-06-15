@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import ConfirmModal from '@/Components/ConfirmModal.vue';
-import Modal from '@/Components/Modal.vue';
 import Button from '@/Components/Form/Button.vue';
 
 describe('ConfirmModal', () => {
