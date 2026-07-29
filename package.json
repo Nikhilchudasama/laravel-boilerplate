@@ -44,5 +44,8 @@
         "lodash": "^4.18.1",
         "vue": "^3.5.34",
         "ziggy-js": "^2.6.2"
+    },
+    "overrides": {
+        "brace-expansion": "^5.0.8"
     }
 }
