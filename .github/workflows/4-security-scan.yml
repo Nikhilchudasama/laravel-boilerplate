@@ -5,14 +5,13 @@ name: "Security Scan"
 # Checks for known vulnerabilities in Composer and npm dependencies.
 # ──────────────────────────────────────────────────────────────────────────────
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main, dev]
   schedule:
     - cron: "0 3 * * 1"   # Every Monday at 03:00 UTC
   workflow_dispatch:        # Allow manual trigger from GitHub UI
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ────────────────────────────────────────────────────────────────────────────
@@ -131,15 +130,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
-          languages: javascript   # covers Vue/TS — PHP CodeQL is community-supported
+          languages: javascript
           queries: security-and-quality
-
+          
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@v4
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript"
